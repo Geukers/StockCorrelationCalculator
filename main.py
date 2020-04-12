@@ -1,6 +1,8 @@
 import pandas as pd
 from pandas import ExcelWriter
 from pandas import ExcelFile
+import xlsxwriter
+import xlrd
 
 import numpy as np
 from datetime import datetime, timezone, timedelta
@@ -17,7 +19,6 @@ if __name__ == '__main__':
     period1_unix_timestamp = repr(int(period1_date_time.replace(tzinfo=timezone.utc).timestamp()))
 
     daily_stock_price = pd.DataFrame()
-    daily_stock_price = daily_stock_price.reindex(columns=df['Symbols'])
 
     for stock in df['Symbols']:
         CSV_URL = 'https://query1.finance.yahoo.com/v7/finance/download/' + stock + \
@@ -42,13 +43,28 @@ if __name__ == '__main__':
 
             daily_stock_price[stock] = close_price_list
 
-    # i1 = 0
-    # while i1 < daily_stock_price.size() - 1:
-    #     col1 = daily_stock_price.iloc[i1, :]
-    #     i2 = i1+1
-    #     while i2 < daily_stock_price.size():
+    i1 = 0
+    while i1 < len(daily_stock_price.columns) - 1:
+        col1 = daily_stock_price.iloc[:, i1]
+        i2 = i1 + 1
+        while i2 < len(daily_stock_price.columns):
+            col2 = daily_stock_price.iloc[:, i2]
+            print(daily_stock_price.columns[i1] + " : " + daily_stock_price.columns[i2])
+            print(repr(np.corrcoef(np.array(col1).astype(np.float), np.array(col2).astype(np.float))))
+            i2 = i2 + 1
+        i1 = i1 + 1
 
-
+    # array = np.corrcoef(np.array(daily_stock_price).astype(np.float))
+    #
+    # workbook = xlsxwriter.Workbook('StockCorrelations.xlsx')
+    # worksheet = workbook.add_worksheet(name="Correlations")
+    #
+    # row = 0
+    #
+    # for col, data in enumerate(array):
+    #     worksheet.write_column(row, col, data)
+    #
+    # workbook.close()
 
     # df = get_excel_data()
     # get_prices(data)
